@@ -1,0 +1,13 @@
+{
+    "id": "obsidian-code-block-formatter",
+    "name": "Code Block Formatter",
+    "version": "1.0.0",
+    "author": "Kyle Oswald",
+    "description": "Description of your plugin",
+    "repository": "https://github.com/your-username/your-plugin-repo",
+    "minAppVersion": "0.15.0",
+    "entry": "main.js",
+    "tags": ["obsidian", "plugin"],
+    "dependencies": [],
+    "license": "MIT"
+}
