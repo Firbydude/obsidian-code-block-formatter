@@ -6,8 +6,8 @@ import { EditorView } from "@codemirror/view";
 
 import { ensureSyntaxTree } from "@codemirror/language";
 
-// import { format as prettier } from "prettier";
-const prettier = require("prettier");
+import { format as prettier } from "prettier";
+// const prettier = require("prettier");
 
 import { SyntaxNodeRef } from "@lezer/common";
 
@@ -136,7 +136,7 @@ export default class MyPlugin extends Plugin {
 
         codeBlocks.forEach(block => {
           try {
-            const promise = prettier.format(
+            const promise = prettier(
               block.text, 
               { 
                 parser: "xml",

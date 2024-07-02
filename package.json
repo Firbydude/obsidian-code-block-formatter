@@ -4,7 +4,8 @@
   "main": "main.js",
   "scripts": {
     "dev": "webpack",
-    "build": "tsc -noEmit -skipLibCheck && webpack",
+    "rmdist": "Remove-Item -Path dist\\* -Recurse",
+    "build": "Remove-Item -Path dist\\* -Recurse ; if ($?) { tsc -noEmit -skipLibCheck ; if ($?) { webpack ; if ($?) { Copy-Item -Path manifest.json -Destination dist\\ } } }",
     "version": "node version-bump.mjs && git add manifest.json versions.json",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
