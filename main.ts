@@ -89,6 +89,7 @@ export default class MyPlugin extends Plugin {
           console.log("code block line (%d, %d)", node.from, node.to);
         } else if (node.type.name === "HyperMD-codeblock_HyperMD-codeblock-bg_HyperMD-codeblock-end_HyperMD-codeblock-end-bg") {
           console.log("adding code block (%s, %d, %d)", fmt, node.from, node.to);
+          // TODO defer the join until the format command is run.
           let cb: CodeBlock = {fmt: fmt.toString(), text: text.join("\n"), from: from, to: node.from};
           codeBlocks.push(cb);
         } else {
@@ -125,6 +126,12 @@ export default class MyPlugin extends Plugin {
         console.log("updating plugin state");
         if (transaction.docChanged) {
           // TODO skip unchanged codeblocks.
+          // Changes (replacements) are described with {from, to, insert} objects. 
+          // For insertions, to can be omitted, and for deletions, insert can be omitted.
+          // see https://codemirror.net/docs/ref/#state.RangeSet
+          // should be able to quickly map changes to code blocks.
+          // map and between look particularly useful.
+          transaction.changes.map(change => { change. });
           return new PluginState(plugin.findAllCodeBlocks(transaction.state));
         }
         
