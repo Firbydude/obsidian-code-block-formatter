@@ -131,7 +131,7 @@ export default class MyPlugin extends Plugin {
           // see https://codemirror.net/docs/ref/#state.RangeSet
           // should be able to quickly map changes to code blocks.
           // map and between look particularly useful.
-          transaction.changes.map(change => { change. });
+          // transaction.changes.map(change => { change. });
           return new PluginState(plugin.findAllCodeBlocks(transaction.state));
         }
         
