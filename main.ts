@@ -60,22 +60,36 @@ export default class MyPlugin extends Plugin {
   //   });
   // }
 
+  // time and log the time it takes to format all code blocks in the editor.
   findAllCodeBlocks(state: EditorState) {
     const codeBlocks: CodeBlock[] = [];
     const ast = ensureSyntaxTree(state, state.doc.length);
 
+    let start = performance.now();
+
     let fmt: String = "";
+    let text: String[] = [];
+    let from: number = 0;
 
     ast?.cursor().iterate(
       (node: SyntaxNodeRef) => {
-        if (node.type.name === "formatting_formatting-code-block_hmd-codeblock") {
+        console.log()
+        if (node.type.name === "HyperMD-codeblock_HyperMD-codeblock-begin_HyperMD-codeblock-begin-bg_HyperMD-codeblock-bg") {
+          fmt = ""
+          text = []
+          console.log("entered code block (%d, %d)", node.from, node.to);
+        } else if (node.type.name === "formatting_formatting-code-block_hmd-codeblock") {
           // This is the "```<format>" portion of the code block.
           fmt = state.doc.sliceString(node.from + 3, node.to).trim();
-          console.log("entered code block (%s, %d, %d)", fmt, node.from, node.to);
+          from = node.to + 1;
+          console.log("code block fmt (%s, %d, %d)", fmt, node.from, node.to);
         } else if (node.type.name === "hmd-codeblock") {
           // This is the text in the code block sans the "```<format>" and ending "```".
+          text.push(state.doc.sliceString(node.from, node.to));
+          console.log("code block line (%d, %d)", node.from, node.to);
+        } else if (node.type.name === "HyperMD-codeblock_HyperMD-codeblock-bg_HyperMD-codeblock-end_HyperMD-codeblock-end-bg") {
           console.log("adding code block (%s, %d, %d)", fmt, node.from, node.to);
-          let cb: CodeBlock = {fmt: fmt.toString(), text: state.doc.sliceString(node.from, node.to), from: node.from, to: node.to};
+          let cb: CodeBlock = {fmt: fmt.toString(), text: text.join("\n"), from: from, to: node.from};
           codeBlocks.push(cb);
         } else {
           console.log("entered non-code block %s (%d, %d)", node.type.name, node.from, node.to);
@@ -84,13 +98,16 @@ export default class MyPlugin extends Plugin {
         return;
       },
       (node: SyntaxNodeRef) => {
-        if (node.type.name === "hmd-codeblock") {
-          console.log("left code block (%d, %d)", node.from, node.to);
-        }
+        // if (node.type.name === "hmd-codeblock") {
+        //   console.log("left code block (%d, %d)", node.from, node.to);
+        // }
 
         return;
       }
     );
+
+    let end = performance.now();
+    console.log("time to find code blocks: %d ms", end - start);
     
     return codeBlocks.reverse();
   }
@@ -136,14 +153,16 @@ export default class MyPlugin extends Plugin {
 
         codeBlocks.forEach(block => {
           try {
+            new Notice("found '" + block.text + "'");
+
             const promise = prettier(
               block.text, 
               { 
-                parser: "xml",
+                parser: "json",
               });
             
             promise.then((formatted) => {
-              editor.replaceRange(formatted, {line: block.from, ch: 0}, {line: block.to, ch: 0});
+              editor.replaceRange(formatted, {line: 0, ch: block.from}, {line: 0, ch: block.to});
             }).catch((e) => {
               console.log(e);
               new Notice("Format: " + e);
